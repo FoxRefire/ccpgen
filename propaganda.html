@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>中共プロパガンダ・テキストジェネレーター</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --panel-bg: #111;
+      --border: #27272a;
+      --text: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: #000;
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP",
+                   "Hiragino Sans", "Yu Gothic", sans-serif;
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      height: 100%;
+      gap: 8px;
+    }
+    aside {
+      background: var(--panel-bg);
+      padding: 12px;
+      border-right: 1px solid #000;
+      overflow: auto;
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      background: #000;
+    }
+    header {
+      padding: 10px 16px;
+      border-bottom: 1px solid #111;
+      font-size: 13px;
+      letter-spacing: .08em;
+    }
+    .field {
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 4px;
+      color: #cbd5e1;
+    }
+    .field input[type="text"],
+    .field input[type="number"],
+    .field textarea,
+    .field select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #050505;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .field textarea { resize: vertical; min-height: 140px; }
+    .inline { display: flex; gap: 6px; }
+    .inline > * { flex: 1; }
+    .muted { color: #9ca3af; font-size: 11px; }
+
+    .btn {
+      appearance: none;
+      border-radius: 9px;
+      border: 1px solid #1f2937;
+      background: #111827;
+      color: #f9fafb;
+      padding: 7px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-right: 4px;
+    }
+    .btn.primary {
+      background: linear-gradient(180deg,#b91c1c,#7f1d1d);
+      border-color: #7f1d1d;
+    }
+
+    .canvas-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      background: #000;
+      display: block;
+    }
+
+    footer {
+      padding: 8px 12px;
+      border-top: 1px solid #111;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      aside { order: 2; }
+      main { order: 1; height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h2 style="font-size:14px;margin:4px 0 10px;">設定</h2>
+
+    <div class="field">
+      <label>背景画像（さっきのロゴ入り画像）</label>
+      <input id="bgFile" type="file" accept="image/*">
+      <div class="muted">アップロードするとキャンバスサイズが画像に合わせて変わります</div>
+    </div>
+
+    <div class="field">
+      <label>メインテキスト</label>
+      <textarea id="text" placeholder="“日本は再び軍国主義の過ちを繰り返すつもりなのか…”"></textarea>
+    </div>
+
+    <div class="inline">
+      <div class="field">
+        <label>本文フォントサイズ(px)</label>
+        <input id="fontSize" type="number" value="80" min="24" max="160" step="2">
+      </div>
+      <div class="field">
+        <label>行間(倍率)</label>
+        <input id="lineHeight" type="number" value="1.25" step="0.05" min="1" max="2">
+      </div>
+    </div>
+
+    <div class="inline">
+      <div class="field">
+        <label>左右マージン(%)</label>
+        <input id="marginX" type="number" value="12" min="5" max="25">
+      </div>
+      <div class="field">
+        <label>上からの開始位置(%)</label>
+        <input id="startY" type="number" value="22" min="10" max="40">
+      </div>
+    </div>
+
+    <div class="inline">
+      <div class="field">
+        <label>テキスト色</label>
+        <input id="textColor" type="color" value="#fdf5e6">
+      </div>
+      <div class="field">
+        <label>影(ぼかし px)</label>
+        <input id="shadowBlur" type="number" value="6" min="0" max="30">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>フォント</label>
+      <select id="fontFamily">
+        <option value="serif">明朝体風 (Noto Serif JP)</option>
+        <option value="sans">ゴシック体風 (Noto Sans JP)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>引用符</label>
+      <select id="quoteMode">
+        <option value="both">“ … ” を付ける</option>
+        <option value="none">付けない</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>フッターテキスト（任意・一番下）</label>
+      <input id="footerText" type="text" placeholder="中国外交部報道官 2025年11月13日">
+      <div class="muted">空ならフッター非表示</div>
+    </div>
+
+    <div class="field">
+      <label>フッターフォントサイズ(px)</label>
+      <input id="footerSize" type="number" value="32" min="18" max="80">
+    </div>
+
+    <div style="margin-top:10px;">
+      <button class="btn" id="renderBtn">再描画</button>
+      <button class="btn primary" id="saveBtn">PNGとして保存</button>
+    </div>
+  </aside>
+
+  <main>
+    <header>中共プロパガンダ・テキストジェネレーター</header>
+    <div class="canvas-wrap">
+      <canvas id="cv" width="1080" height="1920"></canvas>
+    </div>
+    <footer>背景画像を読み込んでからテキストを調整してください。</footer>
+  </main>
+</div>
+
+<script>
+  const els = {
+    cv: document.getElementById('cv'),
+    bgFile: document.getElementById('bgFile'),
+    text: document.getElementById('text'),
+    fontSize: document.getElementById('fontSize'),
+    lineHeight: document.getElementById('lineHeight'),
+    marginX: document.getElementById('marginX'),
+    startY: document.getElementById('startY'),
+    textColor: document.getElementById('textColor'),
+    shadowBlur: document.getElementById('shadowBlur'),
+    fontFamily: document.getElementById('fontFamily'),
+    quoteMode: document.getElementById('quoteMode'),
+    footerText: document.getElementById('footerText'),
+    footerSize: document.getElementById('footerSize'),
+    renderBtn: document.getElementById('renderBtn'),
+    saveBtn: document.getElementById('saveBtn')
+  };
+
+  let bgImg = null;
+
+  // 初期テキスト
+  els.text.value =
+    "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n" +
+    "再び中国人民とアジア人民を敵に回すつもりなのか\n\n" +
+    "戦後の国際秩序を覆そうとしているのか";
+
+  // 背景画像読み込み
+  els.bgFile.addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        bgImg = img;
+        // キャンバスサイズを背景画像に合わせる
+        els.cv.width = img.width;
+        els.cv.height = img.height;
+        render();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function getFontFamily() {
+    if (els.fontFamily.value === 'serif') {
+      return '"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif';
+    }
+    return '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif';
+  }
+
+  // 行分割（日本語向けに単純に文字単位で折り返し）
+  function wrapText(ctx, text, maxWidth) {
+    const result = [];
+    const paragraphs = text.split(/\n{2,}/);
+    for (const para of paragraphs) {
+      const chars = para.replace(/\n/g, '\u200b').split('');
+      let line = "";
+      for (const ch of chars) {
+        const test = line + ch;
+        if (ctx.measureText(test).width > maxWidth && line !== "") {
+          result.push(line);
+          line = ch;
+        } else {
+          line = test;
+        }
+      }
+      if (line) result.push(line);
+      result.push(""); // 段落間の空行
+    }
+    if (result[result.length - 1] === "") result.pop();
+    return result;
+  }
+
+  function render() {
+    const cv = els.cv;
+    const ctx = cv.getContext('2d');
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    // 背景
+    if (bgImg) {
+      ctx.drawImage(bgImg, 0, 0, cv.width, cv.height);
+    } else {
+      ctx.fillStyle = "#7a1010";
+      ctx.fillRect(0, 0, cv.width, cv.height);
+    }
+
+    const W = cv.width;
+    const H = cv.height;
+
+    // テキスト設定
+    const fontSize = parseInt(els.fontSize.value, 10) || 80;
+    const lineHeight = parseFloat(els.lineHeight.value) || 1.25;
+    const marginX = (parseFloat(els.marginX.value) || 10) / 100;
+    const startYRatio = (parseFloat(els.startY.value) || 20) / 100;
+    const color = els.textColor.value || "#ffffff";
+    const shadowBlur = parseInt(els.shadowBlur.value, 10) || 0;
+
+    const areaX = W * marginX;
+    const areaW = W - areaX * 2;
+    const startY = H * startYRatio;
+
+    // 本文
+    let text = els.text.value.trim();
+    if (els.quoteMode.value === "both" && text) {
+      text = "“" + text + "”";
+    }
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = color;
+    ctx.shadowColor = "rgba(0,0,0,0.85)";
+    ctx.shadowBlur = shadowBlur;
+    ctx.font = `700 ${fontSize}px ${getFontFamily()}`;
+
+    const lines = wrapText(ctx, text, areaW);
+    const linePx = fontSize * lineHeight;
+
+    let y = startY;
+    for (const line of lines) {
+      if (line === "") {
+        y += linePx * 0.7;
+        continue;
+      }
+      ctx.fillText(line, W / 2, y);
+      y += linePx;
+    }
+    ctx.restore();
+
+    // フッター
+    const footerText = els.footerText.value.trim();
+    if (footerText) {
+      const fSize = parseInt(els.footerSize.value, 10) || 32;
+      const bottomMargin = H * 0.06;
+
+      ctx.save();
+      ctx.font = `500 ${fSize}px ${getFontFamily()}`;
+      ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "center";
+      ctx.fillStyle = color;
+      ctx.shadowColor = "rgba(0,0,0,0.9)";
+      ctx.shadowBlur = shadowBlur;
+
+      const yFooter = H - bottomMargin;
+      // 上に細いライン
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(W * 0.15, yFooter - fSize * 1.6, W * 0.70, 2);
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = shadowBlur;
+      ctx.fillText(footerText, W / 2, yFooter);
+      ctx.restore();
+    }
+  }
+
+  // 入力のたびに再描画
+  [
+    "text","fontSize","lineHeight","marginX","startY",
+    "textColor","shadowBlur","fontFamily","quoteMode",
+    "footerText","footerSize"
+  ].forEach(id => {
+    els[id].addEventListener("input", render);
+  });
+
+  els.renderBtn.addEventListener("click", render);
+
+  els.saveBtn.addEventListener("click", () => {
+    const url = els.cv.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "propaganda.png";
+    a.click();
+  });
+
+  // 初期描画
+  window.onload = render;
+</script>
+</body>
+</html>
