@@ -125,8 +125,29 @@
       <select id="bgSelect">
         <option value="background.png">外交部ver</option>
         <option value="background2.png">国防部ver</option>
+        <option value="background3.png">毛宁ver</option>
       </select>
       <div class="muted">背景を切り替え</div>
+    </div>
+
+    <!-- 国旗選択（毛宁verのときのみ表示） -->
+    <div class="field" id="flagSelectContainer" style="display: none;">
+      <label>ヘッダー国旗選択</label>
+      <div class="inline">
+        <div class="field">
+          <label>国旗1</label>
+          <select id="flag1">
+            <option value="">読み込み中...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>国旗2</label>
+          <select id="flag2">
+            <option value="">読み込み中...</option>
+          </select>
+        </div>
+      </div>
+      <div class="muted">毛宁verのときのみ表示</div>
     </div>
     
     <div class="field">
@@ -238,7 +259,10 @@
     footerSize: document.getElementById('footerSize'),
     renderBtn: document.getElementById('renderBtn'),
     saveBtn: document.getElementById('saveBtn'),
-    highlightGoldBtn: document.getElementById('highlightGoldBtn')
+    highlightGoldBtn: document.getElementById('highlightGoldBtn'),
+    flagSelectContainer: document.getElementById('flagSelectContainer'),
+    flag1: document.getElementById('flag1'),
+    flag2: document.getElementById('flag2')
   };
 
   // 年月日を「2025年11月13日」形式で返す
@@ -272,6 +296,60 @@
 
   // 初期背景（外交部）
   loadBackground('background.png');
+  
+  // 初期状態で国旗選択を非表示
+  els.flagSelectContainer.style.display = 'none';
+
+  // 国旗データを読み込んでドロップダウンに表示
+  let flagsData = [];
+  function loadFlags() {
+    fetch('./flags.json')
+      .then(response => response.json())
+      .then(data => {
+        flagsData = data;
+        populateFlagSelects();
+      })
+      .catch(error => {
+        console.error('国旗データの読み込みに失敗しました:', error);
+        // フォールバック: 基本的な国旗のみ
+        flagsData = [
+          {code: "CN", emoji: "🇨🇳", name: "中国"},
+          {code: "JP", emoji: "🇯🇵", name: "日本"},
+          {code: "US", emoji: "🇺🇸", name: "アメリカ"},
+          {code: "KR", emoji: "🇰🇷", name: "韓国"},
+          {code: "RU", emoji: "🇷🇺", name: "ロシア"},
+          {code: "GB", emoji: "🇬🇧", name: "イギリス"},
+          {code: "FR", emoji: "🇫🇷", name: "フランス"},
+          {code: "DE", emoji: "🇩🇪", name: "ドイツ"}
+        ];
+        populateFlagSelects();
+      });
+  }
+
+  // 国旗選択ドロップダウンを生成
+  function populateFlagSelects() {
+    // 国旗1と国旗2の両方のドロップダウンをクリア
+    els.flag1.innerHTML = '';
+    els.flag2.innerHTML = '';
+
+    // 全ての国旗を追加
+    flagsData.forEach(flag => {
+      const option1 = document.createElement('option');
+      option1.value = flag.emoji;
+      option1.textContent = `${flag.name} ${flag.emoji}`;
+      if (flag.code === 'CN') option1.selected = true; // デフォルト: 中国
+      els.flag1.appendChild(option1);
+
+      const option2 = document.createElement('option');
+      option2.value = flag.emoji;
+      option2.textContent = `${flag.name} ${flag.emoji}`;
+      if (flag.code === 'JP') option2.selected = true; // デフォルト: 日本
+      els.flag2.appendChild(option2);
+    });
+  }
+
+  // ページ読み込み時に国旗データを読み込む
+  loadFlags();
 
   function getFontFamily() {
     if (els.fontFamily.value === 'serif') {
@@ -353,6 +431,30 @@
     const W = cv.width;
     const H = cv.height;
 
+    // 毛宁verのとき、国旗をヘッダー部分に描画
+    if (els.bgSelect.value === 'background3.png') {
+      const flag1 = els.flag1.value;
+      const flag2 = els.flag2.value;
+      const flagSize = Math.min(W * 0.11, H * 0.11); // 画面サイズに応じた国旗サイズ
+      const flagY = H * 0.1; // 上から6%の位置
+      const flagSpacing = W * 0.05; // 国旗間のスペース
+      const totalWidth = flagSize * 2 + flagSpacing;
+      const flagX = (W - totalWidth) / 2; // 中央揃え
+
+      ctx.save();
+      ctx.font = `${flagSize}px Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // 国旗1を描画
+      ctx.fillText(flag1, flagX + flagSize / 2, flagY);
+      
+      // 国旗2を描画
+      ctx.fillText(flag2, flagX + flagSize + flagSpacing + flagSize / 2, flagY);
+      
+      ctx.restore();
+    }
+
     // テキスト設定
     const fontSize = parseInt(els.fontSize.value, 10) || 80;
     const lineHeight = parseFloat(els.lineHeight.value) || 1.25;
@@ -426,10 +528,18 @@
     const selected = els.bgSelect.value;
     loadBackground(selected);
     const today = formatDateJP(new Date());
-    if (selected === 'background2.png') {
-      els.footerText.value = `中国国防部報道官 ${today}`;
-    } else {
+    
+    // 毛宁verのときは国旗選択を表示、それ以外は非表示
+    if (selected === 'background3.png') {
+      els.flagSelectContainer.style.display = 'block';
       els.footerText.value = `中国外交部報道官 ${today}`;
+    } else {
+      els.flagSelectContainer.style.display = 'none';
+      if (selected === 'background2.png') {
+        els.footerText.value = `中国国防部報道官 ${today}`;
+      } else {
+        els.footerText.value = `中国外交部報道官 ${today}`;
+      }
     }
     render();
   });
@@ -460,9 +570,10 @@
   [
     "text","fontSize","lineHeight","marginX","startY",
     "textColor","shadowBlur","fontFamily","quoteMode",
-    "footerText","footerSize"
+    "footerText","footerSize","flag1","flag2"
   ].forEach(id => {
     els[id].addEventListener("input", render);
+    els[id].addEventListener("change", render);
   });
 
   els.renderBtn.addEventListener("click", render);
