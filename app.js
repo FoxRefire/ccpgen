@@ -33,16 +33,19 @@ async function initI18next() {
   
   // Setup language selector
   const langSelect = document.getElementById('languageSelect');
-  langSelect.value = i18nextInstance.language;
-  langSelect.addEventListener('change', (e) => {
-    i18nextInstance.changeLanguage(e.target.value).then(() => {
-      updateTranslations();
-      updateSelectOptions();
-      updateInitialText();
-      updateFooterText();
-      render();
+  if (langSelect) {
+    langSelect.value = i18nextInstance.language;
+    langSelect.addEventListener('change', (e) => {
+      i18nextInstance.changeLanguage(e.target.value).then(() => {
+        updateTranslations();
+        updateSelectOptions();
+        // Update text based on current background and new language
+        updateInitialText();
+        updateFooterText();
+        render();
+      });
     });
-  });
+  }
 }
 
 function updateTranslations() {
@@ -73,38 +76,35 @@ function updateSelectOptions() {
   });
 }
 
+function getDefaultText(backgroundType, lang) {
+  // Fallback to Japanese if language not found
+  const fallbackLang = 'ja';
+  
+  if (defaultTexts[backgroundType] && defaultTexts[backgroundType][lang]) {
+    return defaultTexts[backgroundType][lang];
+  } else if (defaultTexts[backgroundType] && defaultTexts[backgroundType][fallbackLang]) {
+    return defaultTexts[backgroundType][fallbackLang];
+  }
+  
+  // Ultimate fallback
+  return '';
+}
+
 function updateInitialText() {
-  const lang = i18nextInstance.language;
-  if (lang === 'en') {
-    els.text.value = 
-      "Is Japan going to repeat the mistakes of militarism again?\n\n" +
-      "Is it going to make enemies of the Chinese people and Asian people again?\n\n" +
-      "Is it trying to overturn the post-war international order?";
-  } else if (lang === 'ko') {
-    els.text.value = 
-      "일본이 다시 군국주의의 실수를 반복하려는가\n\n" +
-      "다시 중국 인민과 아시아 인민을 적으로 돌리려는가\n\n" +
-      "전후 국제 질서를 뒤엎으려 하는가";
-  } else if (lang === 'zh-Hans') {
-    els.text.value = 
-      "日本是否要再次重蹈军国主义的错误\n\n" +
-      "是否要再次与中国人民和亚洲人民为敌\n\n" +
-      "是否要颠覆战后的国际秩序";
-  } else if (lang === 'zh-Hant') {
-    els.text.value = 
-      "日本是否要再次重蹈軍國主義的錯誤\n\n" +
-      "是否要再次與中國人民和亞洲人民為敵\n\n" +
-      "是否要顛覆戰後的國際秩序";
-  } else {
-    // Japanese default
-    els.text.value = 
-      "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n" +
-      "再び中国人民とアジア人民を敵に回すつもりなのか\n\n" +
-      "戦後の国際秩序を覆そうとしているのか";
+  if (!els.bgSelect || !els.text) return;
+  
+  const lang = i18nextInstance ? i18nextInstance.language : 'ja';
+  const currentBg = els.bgSelect.value;
+  const text = getDefaultText(currentBg, lang);
+  
+  if (text) {
+    els.text.value = text;
   }
 }
 
 function updateFooterText() {
+  if (!els.bgSelect || !els.footerText) return;
+  
   const currentBg = els.bgSelect.value;
   els.footerText.value = getFooterText(currentBg);
 }
@@ -140,32 +140,37 @@ const FALLBACK_FLAGS = [
   {code: "DE", emoji: "🇩🇪", name: "ドイツ"}
 ];
 
-// DOM Elements
-const els = {
-  cv: document.getElementById('cv'),
-  bgSelect: document.getElementById('bgSelect'),
-  text: document.getElementById('text'),
-  fontSize: document.getElementById('fontSize'),
-  lineHeight: document.getElementById('lineHeight'),
-  marginX: document.getElementById('marginX'),
-  startY: document.getElementById('startY'),
-  textColor: document.getElementById('textColor'),
-  shadowBlur: document.getElementById('shadowBlur'),
-  fontFamily: document.getElementById('fontFamily'),
-  quoteMode: document.getElementById('quoteMode'),
-  footerText: document.getElementById('footerText'),
-  footerSize: document.getElementById('footerSize'),
-  renderBtn: document.getElementById('renderBtn'),
-  saveBtn: document.getElementById('saveBtn'),
-  highlightGoldBtn: document.getElementById('highlightGoldBtn'),
-  flagSelectContainer: document.getElementById('flagSelectContainer'),
-  flag1: document.getElementById('flag1'),
-  flag2: document.getElementById('flag2')
-};
+// DOM Elements - will be initialized after DOM is loaded
+let els = {};
+
+function initializeDOMElements() {
+  els = {
+    cv: document.getElementById('cv'),
+    bgSelect: document.getElementById('bgSelect'),
+    text: document.getElementById('text'),
+    fontSize: document.getElementById('fontSize'),
+    lineHeight: document.getElementById('lineHeight'),
+    marginX: document.getElementById('marginX'),
+    startY: document.getElementById('startY'),
+    textColor: document.getElementById('textColor'),
+    shadowBlur: document.getElementById('shadowBlur'),
+    fontFamily: document.getElementById('fontFamily'),
+    quoteMode: document.getElementById('quoteMode'),
+    footerText: document.getElementById('footerText'),
+    footerSize: document.getElementById('footerSize'),
+    renderBtn: document.getElementById('renderBtn'),
+    saveBtn: document.getElementById('saveBtn'),
+    highlightGoldBtn: document.getElementById('highlightGoldBtn'),
+    flagSelectContainer: document.getElementById('flagSelectContainer'),
+    flag1: document.getElementById('flag1'),
+    flag2: document.getElementById('flag2')
+  };
+}
 
 // State
 let bgImg = null;
 let flagsData = [];
+let defaultTexts = {};
 
 // Utility Functions
 function formatDateJP(d) {
@@ -176,6 +181,9 @@ function formatDateJP(d) {
 }
 
 function getFontFamily() {
+  if (!els.fontFamily) {
+    return '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif';
+  }
   const fontMap = {
     serif: '"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif',
     sans: '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif'
@@ -223,6 +231,22 @@ function loadBackground(name) {
   bgImg.src = './' + name;
 }
 
+// Default Texts Management
+function loadDefaultTexts() {
+  return fetch('./default-texts.json')
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      defaultTexts = data;
+    })
+    .catch(error => {
+      console.error('デフォルトテキストの読み込みに失敗しました:', error);
+      defaultTexts = {};
+    });
+}
+
 // Flag Data Management
 function loadFlags() {
   fetch('./flags.json')
@@ -250,6 +274,8 @@ function createFlagOption(flag, defaultCode) {
 }
 
 function populateFlagSelects() {
+  if (!els.flag1 || !els.flag2) return;
+  
   els.flag1.innerHTML = '';
   els.flag2.innerHTML = '';
 
@@ -327,7 +353,8 @@ function drawBackground(ctx, width, height) {
 }
 
 function drawFlags(ctx, width, height) {
-  if (els.bgSelect.value !== BACKGROUND_TYPES.MAO_NING) return;
+  if (!els.bgSelect || els.bgSelect.value !== BACKGROUND_TYPES.MAO_NING) return;
+  if (!els.flag1 || !els.flag2) return;
 
   const flag1 = els.flag1.value;
   const flag2 = els.flag2.value;
@@ -349,6 +376,9 @@ function drawFlags(ctx, width, height) {
 }
 
 function drawMainText(ctx, width, height) {
+  if (!els.fontSize || !els.lineHeight || !els.marginX || !els.startY || 
+      !els.textColor || !els.shadowBlur || !els.text || !els.quoteMode) return;
+  
   const fontSize = parseInt(els.fontSize.value, 10) || 80;
   const lineHeight = parseFloat(els.lineHeight.value) || 1.25;
   const marginX = (parseFloat(els.marginX.value) || 10) / 100;
@@ -390,6 +420,8 @@ function drawMainText(ctx, width, height) {
 }
 
 function drawFooter(ctx, width, height) {
+  if (!els.footerText || !els.footerSize || !els.textColor || !els.shadowBlur) return;
+  
   const footerText = els.footerText.value.trim();
   if (!footerText) return;
 
@@ -418,6 +450,8 @@ function drawFooter(ctx, width, height) {
 }
 
 function render() {
+  if (!els.cv) return;
+  
   const cv = els.cv;
   const ctx = cv.getContext('2d');
   const width = cv.width;
@@ -432,16 +466,27 @@ function render() {
 
 // Event Handlers
 function handleBackgroundChange() {
+  if (!els.bgSelect) return;
+  
   const selected = els.bgSelect.value;
   loadBackground(selected);
   
   const isMaoNing = selected === BACKGROUND_TYPES.MAO_NING;
-  els.flagSelectContainer.style.display = isMaoNing ? 'block' : 'none';
-  els.footerText.value = getFooterText(selected);
+  if (els.flagSelectContainer) {
+    els.flagSelectContainer.style.display = isMaoNing ? 'block' : 'none';
+  }
+  if (els.footerText) {
+    els.footerText.value = getFooterText(selected);
+  }
+  
+  // Update text based on new background and current language
+  updateInitialText();
   render();
 }
 
 function handleHighlightGold() {
+  if (!els.text) return;
+  
   const ta = els.text;
   const start = ta.selectionStart;
   const end = ta.selectionEnd;
@@ -463,6 +508,8 @@ function handleHighlightGold() {
 }
 
 function handleSaveImage() {
+  if (!els.cv) return;
+  
   const src = els.cv;
   const scale = 0.5;
   const w = src.width * scale;
@@ -495,26 +542,46 @@ function setupEventListeners() {
   ];
 
   renderTriggerIds.forEach(id => {
-    els[id].addEventListener("input", render);
-    els[id].addEventListener("change", render);
+    if (els[id]) {
+      els[id].addEventListener("input", render);
+      els[id].addEventListener("change", render);
+    }
   });
 
-  els.bgSelect.addEventListener('change', handleBackgroundChange);
-  els.highlightGoldBtn.addEventListener('click', handleHighlightGold);
-  els.renderBtn.addEventListener("click", render);
-  els.saveBtn.addEventListener("click", handleSaveImage);
+  if (els.bgSelect) {
+    els.bgSelect.addEventListener('change', handleBackgroundChange);
+  }
+  if (els.highlightGoldBtn) {
+    els.highlightGoldBtn.addEventListener('click', handleHighlightGold);
+  }
+  if (els.renderBtn) {
+    els.renderBtn.addEventListener("click", render);
+  }
+  if (els.saveBtn) {
+    els.saveBtn.addEventListener("click", handleSaveImage);
+  }
 }
 
 // Initialization
 async function init() {
-  // Initialize i18next first
+  // Initialize DOM elements first
+  initializeDOMElements();
+  
+  // Load default texts
+  await loadDefaultTexts();
+  
+  // Initialize i18next
   await initI18next();
   
-  // Set initial text based on language
-  updateInitialText();
-  els.footerText.value = getFooterText(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
-  els.flagSelectContainer.style.display = 'none';
+  // Set initial text based on background and language
+  if (els.footerText) {
+    els.footerText.value = getFooterText(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
+  }
+  if (els.flagSelectContainer) {
+    els.flagSelectContainer.style.display = 'none';
+  }
   
+  updateInitialText();
   loadBackground(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
   loadFlags();
   setupEventListeners();
@@ -522,6 +589,8 @@ async function init() {
 
 window.onload = async () => {
   await init();
-  render();
+  if (els.cv) {
+    render();
+  }
 };
 
