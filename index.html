@@ -241,8 +241,35 @@
 </div>
 
 <script>
+  // Constants
   const HIGHLIGHT_COLOR = "#D8AE5C";
+  const FLAG_DEFAULT_CODES = { flag1: 'CN', flag2: 'JP' };
+  const BACKGROUND_TYPES = {
+    FOREIGN_AFFAIRS: 'background.png',
+    DEFENSE: 'background2.png',
+    MAO_NING: 'background3.png'
+  };
+  const FOOTER_PREFIXES = {
+    FOREIGN_AFFAIRS: '中国外交部報道官',
+    DEFENSE: '中国国防部報道官'
+  };
+  const FLAG_RENDER_CONFIG = {
+    sizeRatio: 0.11,
+    yRatio: 0.1,
+    spacingRatio: 0.05
+  };
+  const FALLBACK_FLAGS = [
+    {code: "CN", emoji: "🇨🇳", name: "中国"},
+    {code: "JP", emoji: "🇯🇵", name: "日本"},
+    {code: "US", emoji: "🇺🇸", name: "アメリカ"},
+    {code: "KR", emoji: "🇰🇷", name: "韓国"},
+    {code: "RU", emoji: "🇷🇺", name: "ロシア"},
+    {code: "GB", emoji: "🇬🇧", name: "イギリス"},
+    {code: "FR", emoji: "🇫🇷", name: "フランス"},
+    {code: "DE", emoji: "🇩🇪", name: "ドイツ"}
+  ];
 
+  // DOM Elements
   const els = {
     cv: document.getElementById('cv'),
     bgSelect: document.getElementById('bgSelect'),
@@ -265,7 +292,11 @@
     flag2: document.getElementById('flag2')
   };
 
-  // 年月日を「2025年11月13日」形式で返す
+  // State
+  let bgImg = null;
+  let flagsData = [];
+
+  // Utility Functions
   function formatDateJP(d) {
     const y = d.getFullYear();
     const m = d.getMonth() + 1;
@@ -273,8 +304,23 @@
     return `${y}年${m}月${day}日`;
   }
 
-  // 背景読み込み関数
-  let bgImg;
+  function getFontFamily() {
+    const fontMap = {
+      serif: '"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif',
+      sans: '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif'
+    };
+    return fontMap[els.fontFamily.value] || fontMap.sans;
+  }
+
+  function getFooterText(backgroundType) {
+    const today = formatDateJP(new Date());
+    if (backgroundType === BACKGROUND_TYPES.DEFENSE) {
+      return `${FOOTER_PREFIXES.DEFENSE} ${today}`;
+    }
+    return `${FOOTER_PREFIXES.FOREIGN_AFFAIRS} ${today}`;
+  }
+
+  // Background Loading
   function loadBackground(name) {
     bgImg = new Image();
     bgImg.onload = () => {
@@ -285,77 +331,40 @@
     bgImg.src = './' + name;
   }
 
-  // 初期テキスト
-  els.text.value =
-    "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n" +
-    "再び中国人民とアジア人民を敵に回すつもりなのか\n\n" +
-    "戦後の国際秩序を覆そうとしているのか";
-
-  // footer 初期値（外交部 + 今日）
-  els.footerText.value = "中国外交部報道官 " + formatDateJP(new Date());
-
-  // 初期背景（外交部）
-  loadBackground('background.png');
-  
-  // 初期状態で国旗選択を非表示
-  els.flagSelectContainer.style.display = 'none';
-
-  // 国旗データを読み込んでドロップダウンに表示
-  let flagsData = [];
+  // Flag Data Management
   function loadFlags() {
     fetch('./flags.json')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
       .then(data => {
         flagsData = data;
         populateFlagSelects();
       })
       .catch(error => {
         console.error('国旗データの読み込みに失敗しました:', error);
-        // フォールバック: 基本的な国旗のみ
-        flagsData = [
-          {code: "CN", emoji: "🇨🇳", name: "中国"},
-          {code: "JP", emoji: "🇯🇵", name: "日本"},
-          {code: "US", emoji: "🇺🇸", name: "アメリカ"},
-          {code: "KR", emoji: "🇰🇷", name: "韓国"},
-          {code: "RU", emoji: "🇷🇺", name: "ロシア"},
-          {code: "GB", emoji: "🇬🇧", name: "イギリス"},
-          {code: "FR", emoji: "🇫🇷", name: "フランス"},
-          {code: "DE", emoji: "🇩🇪", name: "ドイツ"}
-        ];
+        flagsData = FALLBACK_FLAGS;
         populateFlagSelects();
       });
   }
 
-  // 国旗選択ドロップダウンを生成
+  function createFlagOption(flag, defaultCode) {
+    const option = document.createElement('option');
+    option.value = flag.emoji;
+    option.textContent = `${flag.name} ${flag.emoji}`;
+    if (flag.code === defaultCode) option.selected = true;
+    return option;
+  }
+
   function populateFlagSelects() {
-    // 国旗1と国旗2の両方のドロップダウンをクリア
     els.flag1.innerHTML = '';
     els.flag2.innerHTML = '';
 
-    // 全ての国旗を追加
     flagsData.forEach(flag => {
-      const option1 = document.createElement('option');
-      option1.value = flag.emoji;
-      option1.textContent = `${flag.name} ${flag.emoji}`;
-      if (flag.code === 'CN') option1.selected = true; // デフォルト: 中国
-      els.flag1.appendChild(option1);
-
-      const option2 = document.createElement('option');
-      option2.value = flag.emoji;
-      option2.textContent = `${flag.name} ${flag.emoji}`;
-      if (flag.code === 'JP') option2.selected = true; // デフォルト: 日本
-      els.flag2.appendChild(option2);
+      els.flag1.appendChild(createFlagOption(flag, FLAG_DEFAULT_CODES.flag1));
+      els.flag2.appendChild(createFlagOption(flag, FLAG_DEFAULT_CODES.flag2));
     });
-  }
-
-  // ページ読み込み時に国旗データを読み込む
-  loadFlags();
-
-  function getFontFamily() {
-    if (els.fontFamily.value === 'serif') {
-      return '"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif';
-    }
-    return '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif';
   }
 
   // [g]...[/g] を解析して色付きトークン列に変換
@@ -415,47 +424,39 @@
     return lines;
   }
 
-  function render() {
-    const cv = els.cv;
-    const ctx = cv.getContext('2d');
-    ctx.clearRect(0, 0, cv.width, cv.height);
-
-    // 背景
+  // Rendering Functions
+  function drawBackground(ctx, width, height) {
     if (bgImg && bgImg.complete) {
-      ctx.drawImage(bgImg, 0, 0, cv.width, cv.height);
+      ctx.drawImage(bgImg, 0, 0, width, height);
     } else {
       ctx.fillStyle = "#7a1010";
-      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.fillRect(0, 0, width, height);
     }
+  }
 
-    const W = cv.width;
-    const H = cv.height;
+  function drawFlags(ctx, width, height) {
+    if (els.bgSelect.value !== BACKGROUND_TYPES.MAO_NING) return;
 
-    // 毛宁verのとき、国旗をヘッダー部分に描画
-    if (els.bgSelect.value === 'background3.png') {
-      const flag1 = els.flag1.value;
-      const flag2 = els.flag2.value;
-      const flagSize = Math.min(W * 0.11, H * 0.11); // 画面サイズに応じた国旗サイズ
-      const flagY = H * 0.1; // 上から6%の位置
-      const flagSpacing = W * 0.05; // 国旗間のスペース
-      const totalWidth = flagSize * 2 + flagSpacing;
-      const flagX = (W - totalWidth) / 2; // 中央揃え
+    const flag1 = els.flag1.value;
+    const flag2 = els.flag2.value;
+    const flagSize = Math.min(width * FLAG_RENDER_CONFIG.sizeRatio, height * FLAG_RENDER_CONFIG.sizeRatio);
+    const flagY = height * FLAG_RENDER_CONFIG.yRatio;
+    const flagSpacing = width * FLAG_RENDER_CONFIG.spacingRatio;
+    const totalWidth = flagSize * 2 + flagSpacing;
+    const flagX = (width - totalWidth) / 2;
 
-      ctx.save();
-      ctx.font = `${flagSize}px Arial, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      // 国旗1を描画
-      ctx.fillText(flag1, flagX + flagSize / 2, flagY);
-      
-      // 国旗2を描画
-      ctx.fillText(flag2, flagX + flagSize + flagSpacing + flagSize / 2, flagY);
-      
-      ctx.restore();
-    }
+    ctx.save();
+    ctx.font = `${flagSize}px Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    ctx.fillText(flag1, flagX + flagSize / 2, flagY);
+    ctx.fillText(flag2, flagX + flagSize + flagSpacing + flagSize / 2, flagY);
+    
+    ctx.restore();
+  }
 
-    // テキスト設定
+  function drawMainText(ctx, width, height) {
     const fontSize = parseInt(els.fontSize.value, 10) || 80;
     const lineHeight = parseFloat(els.lineHeight.value) || 1.25;
     const marginX = (parseFloat(els.marginX.value) || 10) / 100;
@@ -463,11 +464,10 @@
     const baseColor = els.textColor.value || "#ffffff";
     const shadowBlur = parseInt(els.shadowBlur.value, 10) || 0;
 
-    const areaX = W * marginX;
-    const areaW = W - areaX * 2;
-    const startY = H * startYRatio;
+    const areaX = width * marginX;
+    const areaW = width - areaX * 2;
+    const startY = height * startYRatio;
 
-    // 本文（引用符＋トークン化）
     let raw = els.text.value;
     if (els.quoteMode.value === "both" && raw.trim()) {
       raw = "“" + raw + "”";
@@ -485,7 +485,7 @@
 
     let y = startY;
     for (const line of lines) {
-      const xStart = (W - line.width) / 2;
+      const xStart = (width - line.width) / 2;
       let x = xStart;
       for (const t of line.tokens) {
         ctx.fillStyle = t.color;
@@ -495,119 +495,143 @@
       y += linePx;
     }
     ctx.restore();
-
-    // フッター
-    const footerText = els.footerText.value.trim();
-    if (footerText) {
-      const fSize = parseInt(els.footerSize.value, 10) || 32;
-      const bottomMargin = H * 0.06;
-
-      ctx.save();
-      ctx.font = `500 ${fSize}px "Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif`;
-      ctx.textBaseline = "alphabetic";
-      ctx.textAlign = "center";
-      ctx.fillStyle = baseColor;
-      ctx.shadowColor = "rgba(0,0,0,0.9)";
-      ctx.shadowBlur = shadowBlur;
-
-      const yFooter = H - bottomMargin;
-      // 上に細いライン
-      ctx.shadowBlur = 0;
-      ctx.globalAlpha = 0.85;
-      ctx.fillRect(W * 0.15, yFooter - fSize * 1.6, W * 0.70, 2);
-
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = shadowBlur;
-      ctx.fillText(footerText, W / 2, yFooter);
-      ctx.restore();
-    }
   }
 
-  // 背景切り替えイベント
-  els.bgSelect.addEventListener('change', () => {
+  function drawFooter(ctx, width, height) {
+    const footerText = els.footerText.value.trim();
+    if (!footerText) return;
+
+    const fSize = parseInt(els.footerSize.value, 10) || 32;
+    const bottomMargin = height * 0.06;
+    const baseColor = els.textColor.value || "#ffffff";
+    const shadowBlur = parseInt(els.shadowBlur.value, 10) || 0;
+
+    ctx.save();
+    ctx.font = `500 ${fSize}px "Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif`;
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "center";
+    ctx.fillStyle = baseColor;
+    ctx.shadowColor = "rgba(0,0,0,0.9)";
+    ctx.shadowBlur = shadowBlur;
+
+    const yFooter = height - bottomMargin;
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 0.85;
+    ctx.fillRect(width * 0.15, yFooter - fSize * 1.6, width * 0.70, 2);
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = shadowBlur;
+    ctx.fillText(footerText, width / 2, yFooter);
+    ctx.restore();
+  }
+
+  function render() {
+    const cv = els.cv;
+    const ctx = cv.getContext('2d');
+    const width = cv.width;
+    const height = cv.height;
+
+    ctx.clearRect(0, 0, width, height);
+    drawBackground(ctx, width, height);
+    drawFlags(ctx, width, height);
+    drawMainText(ctx, width, height);
+    drawFooter(ctx, width, height);
+  }
+
+  // Event Handlers
+  function handleBackgroundChange() {
     const selected = els.bgSelect.value;
     loadBackground(selected);
-    const today = formatDateJP(new Date());
     
-    // 毛宁verのときは国旗選択を表示、それ以外は非表示
-    if (selected === 'background3.png') {
-      els.flagSelectContainer.style.display = 'block';
-      els.footerText.value = `中国外交部報道官 ${today}`;
-    } else {
-      els.flagSelectContainer.style.display = 'none';
-      if (selected === 'background2.png') {
-        els.footerText.value = `中国国防部報道官 ${today}`;
-      } else {
-        els.footerText.value = `中国外交部報道官 ${today}`;
-      }
-    }
+    const isMaoNing = selected === BACKGROUND_TYPES.MAO_NING;
+    els.flagSelectContainer.style.display = isMaoNing ? 'block' : 'none';
+    els.footerText.value = getFooterText(selected);
     render();
-  });
+  }
 
-  // テキスト選択部分を [g]…[/g] で囲んで金色にする
-  els.highlightGoldBtn.addEventListener('click', () => {
+  function handleHighlightGold() {
     const ta = els.text;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
-    if (start === end) return; // 選択なし
+    if (start === end) return;
 
     const value = ta.value;
     const before = value.slice(0, start);
     const selected = value.slice(start, end);
     const after = value.slice(end);
+    const GOLD_TAG_OPEN = "[g]";
+    const GOLD_TAG_CLOSE = "[/g]";
 
-    ta.value = before + "[g]" + selected + "[/g]" + after;
+    ta.value = before + GOLD_TAG_OPEN + selected + GOLD_TAG_CLOSE + after;
 
-    // 一応カーソルをハイライト末尾に移動
-    const newPos = before.length + "[g]".length + selected.length + "[/g]".length;
+    const newPos = before.length + GOLD_TAG_OPEN.length + selected.length + GOLD_TAG_CLOSE.length;
     ta.focus();
     ta.selectionStart = ta.selectionEnd = newPos;
-
     render();
-  });
+  }
 
-  // 入力のたびに再描画
-  [
-    "text","fontSize","lineHeight","marginX","startY",
-    "textColor","shadowBlur","fontFamily","quoteMode",
-    "footerText","footerSize","flag1","flag2"
-  ].forEach(id => {
-    els[id].addEventListener("input", render);
-    els[id].addEventListener("change", render);
-  });
+  function handleSaveImage() {
+    const src = els.cv;
+    const scale = 0.5;
+    const w = src.width * scale;
+    const h = src.height * scale;
 
-  els.renderBtn.addEventListener("click", render);
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
 
-  els.saveBtn.addEventListener("click", () => {
-  const src = els.cv; // 元キャンバス
+    const offCtx = off.getContext("2d");
+    offCtx.drawImage(src, 0, 0, w, h);
 
-  // ★ 保存用の低解像度キャンバス作成
-  const scale = 0.5;  // ← 解像度 50%（お好みで 0.3〜0.7 に変更可）
-  const w = src.width * scale;
-  const h = src.height * scale;
+    off.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "propaganda.jpg";
+      a.click();
+      URL.revokeObjectURL(url);
+    }, "image/jpeg", 0.92);
+  }
 
-  const off = document.createElement("canvas");
-  off.width = w;
-  off.height = h;
+  // Event Listeners Setup
+  function setupEventListeners() {
+    const renderTriggerIds = [
+      "text", "fontSize", "lineHeight", "marginX", "startY",
+      "textColor", "shadowBlur", "fontFamily", "quoteMode",
+      "footerText", "footerSize", "flag1", "flag2"
+    ];
 
-  const offCtx = off.getContext("2d");
-  offCtx.drawImage(src, 0, 0, w, h);
+    renderTriggerIds.forEach(id => {
+      els[id].addEventListener("input", render);
+      els[id].addEventListener("change", render);
+    });
 
-  // ★ JPEG で保存（超高速）
-  off.toBlob((blob) => {
-    if (!blob) return;
+    els.bgSelect.addEventListener('change', handleBackgroundChange);
+    els.highlightGoldBtn.addEventListener('click', handleHighlightGold);
+    els.renderBtn.addEventListener("click", render);
+    els.saveBtn.addEventListener("click", handleSaveImage);
+  }
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "propaganda.jpg";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, "image/jpeg", 0.92);
-  });
+  // Initialization
+  function init() {
+    els.text.value = 
+      "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n" +
+      "再び中国人民とアジア人民を敵に回すつもりなのか\n\n" +
+      "戦後の国際秩序を覆そうとしているのか";
+    
+    els.footerText.value = getFooterText(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
+    els.flagSelectContainer.style.display = 'none';
+    
+    loadBackground(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
+    loadFlags();
+    setupEventListeners();
+  }
 
-  // 初期描画（背景読み込み前は赤ベタ＋テキスト、読み込み後に自動で再描画）
-  window.onload = render;
+  window.onload = () => {
+    init();
+    render();
+  };
 </script>
 </body>
 </html>
