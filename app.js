@@ -82,14 +82,37 @@ function getDefaultText(backgroundType, lang) {
   // Fallback to Japanese if language not found
   const fallbackLang = 'ja';
   
+  let langData = null;
   if (defaultTexts[backgroundType] && defaultTexts[backgroundType][lang]) {
-    return defaultTexts[backgroundType][lang];
+    langData = defaultTexts[backgroundType][lang];
   } else if (defaultTexts[backgroundType] && defaultTexts[backgroundType][fallbackLang]) {
-    return defaultTexts[backgroundType][fallbackLang];
+    langData = defaultTexts[backgroundType][fallbackLang];
   }
   
-  // Ultimate fallback
-  return '';
+  if (!langData) return '';
+  
+  // 新しい構造（text/footer）と古い構造（文字列）の両方に対応
+  if (typeof langData === 'string') {
+    return langData;
+  }
+  return langData.text || '';
+}
+
+function getDefaultFooter(backgroundType, lang) {
+  // Fallback to Japanese if language not found
+  const fallbackLang = 'ja';
+  
+  let langData = null;
+  if (defaultTexts[backgroundType] && defaultTexts[backgroundType][lang]) {
+    langData = defaultTexts[backgroundType][lang];
+  } else if (defaultTexts[backgroundType] && defaultTexts[backgroundType][fallbackLang]) {
+    langData = defaultTexts[backgroundType][fallbackLang];
+  }
+  
+  if (!langData || typeof langData === 'string') {
+    return null;
+  }
+  return langData.footer || null;
 }
 
 function updateInitialText() {
@@ -214,6 +237,14 @@ function formatDate(d, lang) {
 
 function getFooterText(backgroundType) {
   const lang = i18nextInstance ? i18nextInstance.language : 'ja';
+  
+  // default-texts.jsonからフッターテキストを取得
+  const defaultFooter = getDefaultFooter(backgroundType, lang);
+  if (defaultFooter) {
+    return defaultFooter;
+  }
+  
+  // フォールバック: 動的に生成（後方互換性のため）
   const today = formatDate(new Date(), lang);
   const prefixes = getFooterPrefixes();
   

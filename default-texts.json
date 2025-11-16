@@ -1,23 +1,68 @@
 {
   "background.png": {
-    "ja": "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n再び中国人民とアジア人民を敵に回すつもりなのか\n\n戦後の国際秩序を覆そうとしているのか",
-    "en": "Is Japan going to repeat the mistakes of militarism again?\n\nIs it going to make enemies of the Chinese people and Asian people again?\n\nIs it trying to overturn the post-war international order?",
-    "zh-Hans": "日本是否要再次重蹈军国主义的错误\n\n是否要再次与中国人民和亚洲人民为敌\n\n是否要颠覆战后的国际秩序",
-    "zh-Hant": "日本是否要再次重蹈軍國主義的錯誤\n\n是否要再次與中國人民和亞洲人民為敵\n\n是否要顛覆戰後的國際秩序",
-    "ko": "일본이 다시 군국주의의 실수를 반복하려는가\n\n다시 중국 인민과 아시아 인민을 적으로 돌리려는가\n\n전후 국제 질서를 뒤엎으려 하는가"
+    "ja": {
+      "text": "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n再び中国人民とアジア人民を敵に回すつもりなのか\n\n戦後の国際秩序を覆そうとしているのか",
+      "footer": "中国外交部報道官 2025年11月13日"
+    },
+    "en": {
+      "text": "Is Japan going to repeat the mistakes of militarism again?\n\nIs it going to make enemies of the Chinese people and Asian people again?\n\nIs it trying to overturn the post-war international order?",
+      "footer": "Chinese Foreign Ministry Spokesperson November 13, 2025"
+    },
+    "zh-Hans": {
+      "text": "日本是否要再次重蹈军国主义的错误\n\n是否要再次与中国人民和亚洲人民为敌\n\n是否要颠覆战后的国际秩序",
+      "footer": "中国外交部发言人 2025年11月13日"
+    },
+    "zh-Hant": {
+      "text": "日本是否要再次重蹈軍國主義的錯誤\n\n是否要再次與中國人民和亞洲人民為敵\n\n是否要顛覆戰後的國際秩序",
+      "footer": "中國外交部發言人 2025年11月13日"
+    },
+    "ko": {
+      "text": "일본이 다시 군국주의의 실수를 반복하려는가\n\n다시 중국 인민과 아시아 인민을 적으로 돌리려는가\n\n전후 국제 질서를 뒤엎으려 하는가",
+      "footer": "중국 외교부 대변인 2025년 11월 13일"
+    }
   },
   "background2.png": {
-    "ja": "日本の軍事拡大は地域の平和と安定を脅かしている\n\n我々は日本の軍事行動に強く懸念を表明する\n\nアジア諸国は警戒を強めるべきである",
-    "en": "Japan's military expansion threatens regional peace and stability\n\nWe express strong concern over Japan's military actions\n\nAsian countries should strengthen their vigilance",
-    "zh-Hans": "日本的军事扩张威胁着地区的和平与稳定\n\n我们对日本的军事行动表示强烈关切\n\n亚洲各国应加强警惕",
-    "zh-Hant": "日本的軍事擴張威脅著地區的和平與穩定\n\n我們對日本的軍事行動表示強烈關切\n\n亞洲各國應加強警惕",
-    "ko": "일본의 군사 확장은 지역의 평화와 안정을 위협하고 있다\n\n우리는 일본의 군사 행동에 강한 우려를 표명한다\n\n아시아 국가들은 경계를 강화해야 한다"
+    "ja": {
+      "text": "日本の軍事拡大は地域の平和と安定を脅かしている\n\n我々は日本の軍事行動に強く懸念を表明する\n\nアジア諸国は警戒を強めるべきである",
+      "footer": "中国国防部報道官 2025年11月13日"
+    },
+    "en": {
+      "text": "Japan's military expansion threatens regional peace and stability\n\nWe express strong concern over Japan's military actions\n\nAsian countries should strengthen their vigilance",
+      "footer": "Chinese Defense Ministry Spokesperson November 13, 2025"
+    },
+    "zh-Hans": {
+      "text": "日本的军事扩张威胁着地区的和平与稳定\n\n我们对日本的军事行动表示强烈关切\n\n亚洲各国应加强警惕",
+      "footer": "中国国防部发言人 2025年11月13日"
+    },
+    "zh-Hant": {
+      "text": "日本的軍事擴張威脅著地區的和平與穩定\n\n我們對日本的軍事行動表示強烈關切\n\n亞洲各國應加強警惕",
+      "footer": "中國國防部發言人 2025年11月13日"
+    },
+    "ko": {
+      "text": "일본의 군사 확장은 지역의 평화와 안정을 위협하고 있다\n\n우리는 일본의 군사 행동에 강한 우려를 표명한다\n\n아시아 국가들은 경계를 강화해야 한다",
+      "footer": "중국 국방부 대변인 2025년 11월 13일"
+    }
   },
   "background3.png": {
-    "ja": "中華人民共和国政府は、\n台湾が中華人民共和国の\n領土の不可分の一部であることを\n重ねて表明する。\n日本国政府は、\nこの中華人民共和国政府の立場を\n十分理解し、尊重し、\nポツダム宣言第八項に基づく立場を\n堅持する。",
-    "en": "The Government of the People's Republic of China\nreiterates that Taiwan is an inalienable part\nof the territory of the People's Republic of China.\nThe Government of Japan fully understands\nand respects this position of the Government\nof the People's Republic of China and adheres\nto its stand under Article 8 of the Potsdam Proclamation.",
-    "zh-Hans": "中华人民共和国政府重申，\n台湾是中华人民共和国\n领土不可分割的一部分。\n日本国政府充分理解\n并尊重中华人民共和国政府的这一立场，\n并坚持基于波茨坦公告第八项的立场。",
-    "zh-Hant": "中華人民共和國政府重申，\n台灣是中華人民共和國\n領土不可分割的一部分。\n日本國政府充分理解\n並尊重中華人民共和國政府的這一立場，\n並堅持基於波茨坦公告第八項的立場。",
-    "ko": "중화인민공화국 정부는\n대만이 중화인민공화국\n영토의 불가분의 일부임을\n거듭 표명한다.\n일본국 정부는\n이 중화인민공화국 정부의 입장을\n충분히 이해하고 존중하며,\n포츠담 선언 제8항에 기반한 입장을\n견지한다."
+    "ja": {
+      "text": "中華人民共和国政府は、\n台湾が中華人民共和国の\n領土の不可分の一部であることを\n重ねて表明する。\n日本国政府は、\nこの中華人民共和国政府の立場を\n十分理解し、尊重し、\nポツダム宣言第八項に基づく立場を\n堅持する。",
+      "footer": "中国外交部報道官 2023年10月17日"
+    },
+    "en": {
+      "text": "The Government of the People's Republic of China\nreiterates that Taiwan is an inalienable part\nof the territory of the People's Republic of China.\nThe Government of Japan fully understands\nand respects this position of the Government\nof the People's Republic of China and adheres\nto its stand under Article 8 of the Potsdam Proclamation.",
+      "footer": "Chinese Foreign Ministry Spokesperson October 17, 2023"
+    },
+    "zh-Hans": {
+      "text": "中华人民共和国政府重申，\n台湾是中华人民共和国\n领土不可分割的一部分。\n日本国政府充分理解\n并尊重中华人民共和国政府的这一立场，\n并坚持基于波茨坦公告第八项的立场。",
+      "footer": "中国外交部发言人 2023年10月17日"
+    },
+    "zh-Hant": {
+      "text": "中華人民共和國政府重申，\n台灣是中華人民共和國\n領土不可分割的一部分。\n日本國政府充分理解\n並尊重中華人民共和國政府的這一立場，\n並堅持基於波茨坦公告第八項的立場。",
+      "footer": "中國外交部發言人 2023年10月17日"
+    },
+    "ko": {
+      "text": "중화인민공화국 정부는\n대만이 중화인민공화국\n영토의 불가분의 일부임을\n거듭 표명한다.\n일본국 정부는\n이 중화인민공화국 정부의 입장을\n충분히 이해하고 존중하며,\n포츠담 선언 제8항에 기반한 입장을\n견지한다.",
+      "footer": "중국 외교부 대변인 2023년 10월 17일"
+    }
   }
 }
