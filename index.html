@@ -2,612 +2,158 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>中共プロパガンダ・テキストジェネレーター</title>
+  <title data-i18n="title">中共プロパガンダ・テキストジェネレーター</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --panel-bg: #111;
-      --border: #27272a;
-      --text: #e5e7eb;
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
-    body {
-      background: #000;
-      color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans JP",
-                   "Hiragino Sans", "Yu Gothic", sans-serif;
-    }
-    .app {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      height: 100vh;
-      gap: 8px;
-    }
-    aside {
-      background: var(--panel-bg);
-      padding: 12px;
-      border-right: 1px solid #000;
-      overflow: auto;
-    }
-    main {
-      display: flex;
-      flex-direction: column;
-      background: #000;
-    }
-    header {
-      padding: 10px 16px;
-      border-bottom: 1px solid #111;
-      font-size: 13px;
-      letter-spacing: .08em;
-    }
-    .field {
-      margin-bottom: 10px;
-      font-size: 12px;
-    }
-    .field label {
-      display: block;
-      margin-bottom: 4px;
-      color: #cbd5e1;
-    }
-    .field input[type="text"],
-    .field input[type="number"],
-    .field textarea,
-    .field select {
-      width: 100%;
-      padding: 7px 9px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: #050505;
-      color: var(--text);
-      font-size: 13px;
-    }
-    .field textarea { resize: vertical; min-height: 140px; }
-    .inline { display: flex; gap: 6px; }
-    .inline > * { flex: 1; }
-    .muted { color: #9ca3af; font-size: 11px; }
-
-    .btn {
-      appearance: none;
-      border-radius: 9px;
-      border: 1px solid #1f2937;
-      background: #111827;
-      color: #f9fafb;
-      padding: 7px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      margin-right: 4px;
-    }
-    .btn.primary {
-      background: linear-gradient(180deg,#b91c1c,#7f1d1d);
-      border-color: #7f1d1d;
-    }
-
-    .canvas-wrap {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      overflow: hidden;
-    }
-    canvas {
-      max-width: 100%;
-      max-height: 100vh;
-      height: auto;
-      width: auto;
-      background: #000;
-      display: block;
-    }
-
-    footer {
-      padding: 8px 12px;
-      border-top: 1px solid #111;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    @media (max-width: 900px) {
-      .app { grid-template-columns: 1fr; }
-      aside { order: 2; }
-      main { order: 1; }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/i18next@23.7.6/dist/umd/i18next.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@7.2.0/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
+  <script src="app.js"></script>
 </head>
 <body>
 <div class="app">
   <aside>
-    <h2 style="font-size:14px;margin:4px 0 10px;">設定</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h2 style="font-size:14px;margin:4px 0 10px;" data-i18n="settings">設定</h2>
+      <select id="languageSelect" style="font-size: 11px; padding: 4px 6px;">
+        <option value="ja">日本語</option>
+        <option value="en">English</option>
+        <option value="zh-Hant">繁體中文</option>
+        <option value="zh-Hans">简体中文</option>
+        <option value="ko">한국어</option>
+      </select>
+    </div>
 
     <!-- 背景画像選択 -->
     <div class="field">
-      <label>背景画像選択</label>
+      <label data-i18n="backgroundSelect">背景画像選択</label>
       <select id="bgSelect">
-        <option value="background.png">外交部ver</option>
-        <option value="background2.png">国防部ver</option>
-        <option value="background3.png">毛宁ver</option>
+        <option value="background.png" data-i18n="backgroundForeignAffairs">外交部ver</option>
+        <option value="background2.png" data-i18n="backgroundDefense">国防部ver</option>
+        <option value="background3.png" data-i18n="backgroundMaoNing">毛宁ver</option>
       </select>
-      <div class="muted">背景を切り替え</div>
+      <div class="muted" data-i18n="backgroundSelectDesc">背景を切り替え</div>
     </div>
 
     <!-- 国旗選択（毛宁verのときのみ表示） -->
     <div class="field" id="flagSelectContainer" style="display: none;">
-      <label>ヘッダー国旗選択</label>
+      <label data-i18n="flagSelect">ヘッダー国旗選択</label>
       <div class="inline">
         <div class="field">
-          <label>国旗1</label>
+          <label data-i18n="flag1">国旗1</label>
           <select id="flag1">
-            <option value="">読み込み中...</option>
+            <option value="" data-i18n="loading">読み込み中...</option>
           </select>
         </div>
         <div class="field">
-          <label>国旗2</label>
+          <label data-i18n="flag2">国旗2</label>
           <select id="flag2">
-            <option value="">読み込み中...</option>
+            <option value="" data-i18n="loading">読み込み中...</option>
           </select>
         </div>
       </div>
-      <div class="muted">毛宁verのときのみ表示</div>
+      <div class="muted" data-i18n="flagSelectDesc">毛宁verのときのみ表示</div>
     </div>
     
     <div class="field">
-      <label>メインテキスト</label>
-      <textarea id="text" placeholder="“日本は再び軍国主義の過ちを繰り返すつもりなのか…”"></textarea>
+      <label data-i18n="mainText">メインテキスト</label>
+      <textarea id="text" data-i18n="[placeholder]mainTextPlaceholder" placeholder="“日本は再び軍国主義の過ちを繰り返すつもりなのか…”"></textarea>
     </div>
 
     <!-- 選択部分を金色にするボタン -->
     <div class="field">
-      <button class="btn" id="highlightGoldBtn" type="button">
+      <button class="btn" id="highlightGoldBtn" type="button" data-i18n="highlightGold">
         選択部分を金色にする
       </button>
-      <div class="muted">
+      <div class="muted" data-i18n="highlightGoldDesc">
         テキスト内で範囲選択してから押すと、その部分だけ金色で描画されます。
       </div>
     </div>
 
     <div class="inline">
       <div class="field">
-        <label>本文フォントサイズ(px)</label>
+        <label data-i18n="fontSize">本文フォントサイズ(px)</label>
         <input id="fontSize" type="number" value="80" min="24" max="160" step="2">
       </div>
       <div class="field">
-        <label>行間(倍率)</label>
+        <label data-i18n="lineHeight">行間(倍率)</label>
         <input id="lineHeight" type="number" value="1.25" step="0.05" min="1" max="2">
       </div>
     </div>
 
     <div class="inline">
       <div class="field">
-        <label>左右マージン(%)</label>
+        <label data-i18n="marginX">左右マージン(%)</label>
         <input id="marginX" type="number" value="12" min="5" max="25">
       </div>
       <div class="field">
-        <label>上からの開始位置(%)</label>
+        <label data-i18n="startY">上からの開始位置(%)</label>
         <input id="startY" type="number" value="22" min="10" max="40">
       </div>
     </div>
 
     <div class="inline">
       <div class="field">
-        <label>テキスト色</label>
+        <label data-i18n="textColor">テキスト色</label>
         <input id="textColor" type="color" value="#fdf5e6">
       </div>
       <div class="field">
-        <label>影(ぼかし px)</label>
+        <label data-i18n="shadowBlur">影(ぼかし px)</label>
         <input id="shadowBlur" type="number" value="6" min="0" max="30">
       </div>
     </div>
 
     <div class="field">
-      <label>フォント</label>
+      <label data-i18n="font">フォント</label>
       <select id="fontFamily">
-        <option value="serif">明朝体風 (Noto Serif JP)</option>
-        <option value="sans">ゴシック体風 (Noto Sans JP)</option>
+        <option value="serif" data-i18n="fontSerif">明朝体風 (Noto Serif JP)</option>
+        <option value="sans" data-i18n="fontSans">ゴシック体風 (Noto Sans JP)</option>
       </select>
     </div>
 
     <div class="field">
-      <label>引用符</label>
+      <label data-i18n="quoteMode">引用符</label>
       <select id="quoteMode">
-        <option value="both">“ … ” を付ける</option>
-        <option value="none">付けない</option>
+        <option value="both" data-i18n="quoteBoth">" … " を付ける</option>
+        <option value="none" data-i18n="quoteNone">付けない</option>
       </select>
     </div>
 
     <div class="field">
-      <label>フッターテキスト（任意・一番下）</label>
-      <input id="footerText" type="text" placeholder="中国外交部報道官 2025年11月13日">
-      <div class="muted">空ならフッター非表示</div>
+      <label data-i18n="footerText">フッターテキスト（任意・一番下）</label>
+      <input id="footerText" type="text" data-i18n="[placeholder]footerTextPlaceholder" placeholder="中国外交部報道官 2025年11月13日">
+      <div class="muted" data-i18n="footerTextDesc">空ならフッター非表示</div>
     </div>
 
     <div class="field">
-      <label>フッターフォントサイズ(px)</label>
+      <label data-i18n="footerSize">フッターフォントサイズ(px)</label>
       <input id="footerSize" type="number" value="32" min="18" max="80">
     </div>
 
     <div style="margin-top:10px;">
-      <button class="btn" id="renderBtn">再描画</button>
-      <button class="btn primary" id="saveBtn">JPGとして保存</button>
-      <div class="muted">右クリックで保存したほうが早いかも</div>
+      <button class="btn" id="renderBtn" data-i18n="render">再描画</button>
+      <button class="btn primary" id="saveBtn" data-i18n="save">JPGとして保存</button>
+      <div class="muted" data-i18n="saveDesc">右クリックで保存したほうが早いかも</div>
     </div>
   </aside>
 
   <main>
-    <header>中共プロパガンダ・テキストジェネレーター</header>
+    <header>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span data-i18n="header">中共プロパガンダ・テキストジェネレーター</span>
+        <a href="https://github.com/mixivalo/ccpgen" target="_blank" rel="noopener noreferrer" class="github-link" title="GitHub">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+        </a>
+      </div>
+    </header>
     <div class="canvas-wrap">
       <canvas id="cv"></canvas>
     </div>
   </main>
 </div>
-
-<script>
-  const HIGHLIGHT_COLOR = "#D8AE5C";
-
-  const els = {
-    cv: document.getElementById('cv'),
-    bgSelect: document.getElementById('bgSelect'),
-    text: document.getElementById('text'),
-    fontSize: document.getElementById('fontSize'),
-    lineHeight: document.getElementById('lineHeight'),
-    marginX: document.getElementById('marginX'),
-    startY: document.getElementById('startY'),
-    textColor: document.getElementById('textColor'),
-    shadowBlur: document.getElementById('shadowBlur'),
-    fontFamily: document.getElementById('fontFamily'),
-    quoteMode: document.getElementById('quoteMode'),
-    footerText: document.getElementById('footerText'),
-    footerSize: document.getElementById('footerSize'),
-    renderBtn: document.getElementById('renderBtn'),
-    saveBtn: document.getElementById('saveBtn'),
-    highlightGoldBtn: document.getElementById('highlightGoldBtn'),
-    flagSelectContainer: document.getElementById('flagSelectContainer'),
-    flag1: document.getElementById('flag1'),
-    flag2: document.getElementById('flag2')
-  };
-
-  // 年月日を「2025年11月13日」形式で返す
-  function formatDateJP(d) {
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    const day = d.getDate();
-    return `${y}年${m}月${day}日`;
-  }
-
-  // 背景読み込み関数
-  let bgImg;
-  function loadBackground(name) {
-    bgImg = new Image();
-    bgImg.onload = () => {
-      els.cv.width = bgImg.width;
-      els.cv.height = bgImg.height;
-      render();
-    };
-    bgImg.src = './' + name;
-  }
-
-  // 初期テキスト
-  els.text.value =
-    "日本は再び軍国主義の過ちを繰り返すつもりなのか\n\n" +
-    "再び中国人民とアジア人民を敵に回すつもりなのか\n\n" +
-    "戦後の国際秩序を覆そうとしているのか";
-
-  // footer 初期値（外交部 + 今日）
-  els.footerText.value = "中国外交部報道官 " + formatDateJP(new Date());
-
-  // 初期背景（外交部）
-  loadBackground('background.png');
-  
-  // 初期状態で国旗選択を非表示
-  els.flagSelectContainer.style.display = 'none';
-
-  // 国旗データを読み込んでドロップダウンに表示
-  let flagsData = [];
-  function loadFlags() {
-    fetch('./flags.json')
-      .then(response => response.json())
-      .then(data => {
-        flagsData = data;
-        populateFlagSelects();
-      })
-      .catch(error => {
-        console.error('国旗データの読み込みに失敗しました:', error);
-        // フォールバック: 基本的な国旗のみ
-        flagsData = [
-          {code: "CN", emoji: "🇨🇳", name: "中国"},
-          {code: "JP", emoji: "🇯🇵", name: "日本"},
-          {code: "US", emoji: "🇺🇸", name: "アメリカ"},
-          {code: "KR", emoji: "🇰🇷", name: "韓国"},
-          {code: "RU", emoji: "🇷🇺", name: "ロシア"},
-          {code: "GB", emoji: "🇬🇧", name: "イギリス"},
-          {code: "FR", emoji: "🇫🇷", name: "フランス"},
-          {code: "DE", emoji: "🇩🇪", name: "ドイツ"}
-        ];
-        populateFlagSelects();
-      });
-  }
-
-  // 国旗選択ドロップダウンを生成
-  function populateFlagSelects() {
-    // 国旗1と国旗2の両方のドロップダウンをクリア
-    els.flag1.innerHTML = '';
-    els.flag2.innerHTML = '';
-
-    // 全ての国旗を追加
-    flagsData.forEach(flag => {
-      const option1 = document.createElement('option');
-      option1.value = flag.emoji;
-      option1.textContent = `${flag.name} ${flag.emoji}`;
-      if (flag.code === 'CN') option1.selected = true; // デフォルト: 中国
-      els.flag1.appendChild(option1);
-
-      const option2 = document.createElement('option');
-      option2.value = flag.emoji;
-      option2.textContent = `${flag.name} ${flag.emoji}`;
-      if (flag.code === 'JP') option2.selected = true; // デフォルト: 日本
-      els.flag2.appendChild(option2);
-    });
-  }
-
-  // ページ読み込み時に国旗データを読み込む
-  loadFlags();
-
-  function getFontFamily() {
-    if (els.fontFamily.value === 'serif') {
-      return '"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif';
-    }
-    return '"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif';
-  }
-
-  // [g]...[/g] を解析して色付きトークン列に変換
-  function parseTokens(text, baseColor, highlightColor) {
-    const tokens = [];
-    let i = 0;
-    let currentColor = baseColor;
-    while (i < text.length) {
-      if (text.startsWith("[g]", i)) {
-        currentColor = highlightColor;
-        i += 3;
-        continue;
-      }
-      if (text.startsWith("[/g]", i)) {
-        currentColor = baseColor;
-        i += 4;
-        continue;
-      }
-      const ch = text[i];
-      tokens.push({ char: ch, color: currentColor });
-      i++;
-    }
-    return tokens;
-  }
-
-  // トークン列を行ごとに分割（自動折り返し）
-  function layoutTokens(ctx, tokens, maxWidth) {
-    const lines = [];
-    let currentTokens = [];
-    let currentWidth = 0;
-
-    for (const t of tokens) {
-      if (t.char === "\n") {
-        // 改行で行を確定
-        lines.push({ tokens: currentTokens, width: currentWidth });
-        currentTokens = [];
-        currentWidth = 0;
-        continue;
-      }
-
-      const w = ctx.measureText(t.char).width;
-      if (currentWidth + w > maxWidth && currentTokens.length > 0) {
-        // 折り返し
-        lines.push({ tokens: currentTokens, width: currentWidth });
-        currentTokens = [t];
-        currentWidth = w;
-      } else {
-        currentTokens.push(t);
-        currentWidth += w;
-      }
-    }
-
-    if (currentTokens.length > 0) {
-      lines.push({ tokens: currentTokens, width: currentWidth });
-    }
-
-    return lines;
-  }
-
-  function render() {
-    const cv = els.cv;
-    const ctx = cv.getContext('2d');
-    ctx.clearRect(0, 0, cv.width, cv.height);
-
-    // 背景
-    if (bgImg && bgImg.complete) {
-      ctx.drawImage(bgImg, 0, 0, cv.width, cv.height);
-    } else {
-      ctx.fillStyle = "#7a1010";
-      ctx.fillRect(0, 0, cv.width, cv.height);
-    }
-
-    const W = cv.width;
-    const H = cv.height;
-
-    // 毛宁verのとき、国旗をヘッダー部分に描画
-    if (els.bgSelect.value === 'background3.png') {
-      const flag1 = els.flag1.value;
-      const flag2 = els.flag2.value;
-      const flagSize = Math.min(W * 0.11, H * 0.11); // 画面サイズに応じた国旗サイズ
-      const flagY = H * 0.1; // 上から6%の位置
-      const flagSpacing = W * 0.05; // 国旗間のスペース
-      const totalWidth = flagSize * 2 + flagSpacing;
-      const flagX = (W - totalWidth) / 2; // 中央揃え
-
-      ctx.save();
-      ctx.font = `${flagSize}px Arial, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      // 国旗1を描画
-      ctx.fillText(flag1, flagX + flagSize / 2, flagY);
-      
-      // 国旗2を描画
-      ctx.fillText(flag2, flagX + flagSize + flagSpacing + flagSize / 2, flagY);
-      
-      ctx.restore();
-    }
-
-    // テキスト設定
-    const fontSize = parseInt(els.fontSize.value, 10) || 80;
-    const lineHeight = parseFloat(els.lineHeight.value) || 1.25;
-    const marginX = (parseFloat(els.marginX.value) || 10) / 100;
-    const startYRatio = (parseFloat(els.startY.value) || 20) / 100;
-    const baseColor = els.textColor.value || "#ffffff";
-    const shadowBlur = parseInt(els.shadowBlur.value, 10) || 0;
-
-    const areaX = W * marginX;
-    const areaW = W - areaX * 2;
-    const startY = H * startYRatio;
-
-    // 本文（引用符＋トークン化）
-    let raw = els.text.value;
-    if (els.quoteMode.value === "both" && raw.trim()) {
-      raw = "“" + raw + "”";
-    }
-
-    ctx.save();
-    ctx.textBaseline = "top";
-    ctx.shadowColor = "rgba(0,0,0,0.85)";
-    ctx.shadowBlur = shadowBlur;
-    ctx.font = `700 ${fontSize}px ${getFontFamily()}`;
-
-    const tokens = parseTokens(raw, baseColor, HIGHLIGHT_COLOR);
-    const lines = layoutTokens(ctx, tokens, areaW);
-    const linePx = fontSize * lineHeight;
-
-    let y = startY;
-    for (const line of lines) {
-      const xStart = (W - line.width) / 2;
-      let x = xStart;
-      for (const t of line.tokens) {
-        ctx.fillStyle = t.color;
-        ctx.fillText(t.char, x, y);
-        x += ctx.measureText(t.char).width;
-      }
-      y += linePx;
-    }
-    ctx.restore();
-
-    // フッター
-    const footerText = els.footerText.value.trim();
-    if (footerText) {
-      const fSize = parseInt(els.footerSize.value, 10) || 32;
-      const bottomMargin = H * 0.06;
-
-      ctx.save();
-      ctx.font = `500 ${fSize}px "Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif`;
-      ctx.textBaseline = "alphabetic";
-      ctx.textAlign = "center";
-      ctx.fillStyle = baseColor;
-      ctx.shadowColor = "rgba(0,0,0,0.9)";
-      ctx.shadowBlur = shadowBlur;
-
-      const yFooter = H - bottomMargin;
-      // 上に細いライン
-      ctx.shadowBlur = 0;
-      ctx.globalAlpha = 0.85;
-      ctx.fillRect(W * 0.15, yFooter - fSize * 1.6, W * 0.70, 2);
-
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = shadowBlur;
-      ctx.fillText(footerText, W / 2, yFooter);
-      ctx.restore();
-    }
-  }
-
-  // 背景切り替えイベント
-  els.bgSelect.addEventListener('change', () => {
-    const selected = els.bgSelect.value;
-    loadBackground(selected);
-    const today = formatDateJP(new Date());
-    
-    // 毛宁verのときは国旗選択を表示、それ以外は非表示
-    if (selected === 'background3.png') {
-      els.flagSelectContainer.style.display = 'block';
-      els.footerText.value = `中国外交部報道官 ${today}`;
-    } else {
-      els.flagSelectContainer.style.display = 'none';
-      if (selected === 'background2.png') {
-        els.footerText.value = `中国国防部報道官 ${today}`;
-      } else {
-        els.footerText.value = `中国外交部報道官 ${today}`;
-      }
-    }
-    render();
-  });
-
-  // テキスト選択部分を [g]…[/g] で囲んで金色にする
-  els.highlightGoldBtn.addEventListener('click', () => {
-    const ta = els.text;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    if (start === end) return; // 選択なし
-
-    const value = ta.value;
-    const before = value.slice(0, start);
-    const selected = value.slice(start, end);
-    const after = value.slice(end);
-
-    ta.value = before + "[g]" + selected + "[/g]" + after;
-
-    // 一応カーソルをハイライト末尾に移動
-    const newPos = before.length + "[g]".length + selected.length + "[/g]".length;
-    ta.focus();
-    ta.selectionStart = ta.selectionEnd = newPos;
-
-    render();
-  });
-
-  // 入力のたびに再描画
-  [
-    "text","fontSize","lineHeight","marginX","startY",
-    "textColor","shadowBlur","fontFamily","quoteMode",
-    "footerText","footerSize","flag1","flag2"
-  ].forEach(id => {
-    els[id].addEventListener("input", render);
-    els[id].addEventListener("change", render);
-  });
-
-  els.renderBtn.addEventListener("click", render);
-
-  els.saveBtn.addEventListener("click", () => {
-  const src = els.cv; // 元キャンバス
-
-  // ★ 保存用の低解像度キャンバス作成
-  const scale = 0.5;  // ← 解像度 50%（お好みで 0.3〜0.7 に変更可）
-  const w = src.width * scale;
-  const h = src.height * scale;
-
-  const off = document.createElement("canvas");
-  off.width = w;
-  off.height = h;
-
-  const offCtx = off.getContext("2d");
-  offCtx.drawImage(src, 0, 0, w, h);
-
-  // ★ JPEG で保存（超高速）
-  off.toBlob((blob) => {
-    if (!blob) return;
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "propaganda.jpg";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, "image/jpeg", 0.92);
-  });
-
-  // 初期描画（背景読み込み前は赤ベタ＋テキスト、読み込み後に自動で再描画）
-  window.onload = render;
-</script>
 </body>
 </html>
