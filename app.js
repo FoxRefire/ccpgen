@@ -185,11 +185,11 @@ function updateFooterText() {
 const HIGHLIGHT_COLOR = "#D8AE5C";
 const FLAG_DEFAULT_CODES = { flag1: 'CN', flag2: 'JP' };
 const BACKGROUND_TYPES = {
-  FOREIGN_AFFAIRS: 'background.png',
-  FOREIGN_AFFAIRS2: 'background1.png',
-  FOREIGN_AFFAIRS3: 'background4.png',
-  DEFENSE: 'background2.png',
-  MAO_NING: 'background3.png'
+  FOREIGN_AFFAIRS1: 'foreignAffairs1.png',
+  FOREIGN_AFFAIRS2: 'foreignAffairs2.png',
+  FOREIGN_AFFAIRS3: 'foreignAffairs3.png',
+  DEFENSE: 'defense1.png',
+  MAO_NING: 'maoNing1.png'
 };
 
 function getFooterPrefixes() {
@@ -317,7 +317,7 @@ function loadBackground(name) {
     els.cv.height = bgImg.height;
     render();
   };
-  bgImg.src = './' + name;
+  bgImg.src = './images/' + name;
 }
 
 // Default Texts Management
@@ -777,14 +777,14 @@ async function init() {
   
   // Set initial text based on background and language
   if (els.footerText) {
-    els.footerText.value = getFooterText(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
+    els.footerText.value = getFooterText(BACKGROUND_TYPES.FOREIGN_AFFAIRS1);
   }
   if (els.flagSelectContainer) {
     els.flagSelectContainer.style.display = 'none';
   }
   
   updateInitialText();
-  loadBackground(BACKGROUND_TYPES.FOREIGN_AFFAIRS);
+  loadBackground(BACKGROUND_TYPES.FOREIGN_AFFAIRS1);
   loadFlags();
   setupEventListeners();
 }
