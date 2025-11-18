@@ -187,6 +187,7 @@ const FLAG_DEFAULT_CODES = { flag1: 'CN', flag2: 'JP' };
 const BACKGROUND_TYPES = {
   FOREIGN_AFFAIRS: 'background.png',
   FOREIGN_AFFAIRS2: 'background1.png',
+  FOREIGN_AFFAIRS3: 'background4.png',
   DEFENSE: 'background2.png',
   MAO_NING: 'background3.png'
 };
@@ -195,6 +196,7 @@ function getFooterPrefixes() {
   return {
     FOREIGN_AFFAIRS: i18nextInstance ? i18nextInstance.t('footerForeignAffairs') : '中国外交部報道官',
     FOREIGN_AFFAIRS2: i18nextInstance ? i18nextInstance.t('footerForeignAffairs2') : '中国外交部報道官',
+    FOREIGN_AFFAIRS3: i18nextInstance ? i18nextInstance.t('footerForeignAffairs') : '中国外交部報道官',
     DEFENSE: i18nextInstance ? i18nextInstance.t('footerDefense') : '中国国防部報道官'
   };
 }
@@ -300,6 +302,9 @@ function getFooterText(backgroundType) {
   
   if (backgroundType === BACKGROUND_TYPES.DEFENSE) {
     return `${prefixes.DEFENSE} ${today}`;
+  }
+  if (backgroundType === BACKGROUND_TYPES.FOREIGN_AFFAIRS3) {
+    return `${prefixes.FOREIGN_AFFAIRS3} ${today}`;
   }
   return `${prefixes.FOREIGN_AFFAIRS} ${today}`;
 }
